@@ -247,11 +247,6 @@ TEST(polish, can_convert_to_polish) {
   }
 }
 
-TEST(polish, can_get_operation_priority) {
-  polish p;
-  EXPECT_EQ(3, p.getPrt('*'));
-}
-
 TEST(polish, can_convert_with_variables) {
   char *s = "3 * 0.5+x";
     CNode *expPol =0;
