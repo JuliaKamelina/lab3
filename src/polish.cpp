@@ -153,32 +153,13 @@ CNode * polish::divideLex(char *exp) {
               break;
               
             case '-':  //  унарный минус
-              if ((i == 0) || (exp[i + 1] == '(') || (exp[i + 1] == '|') || (last->flag == 10)) {
+              if ((i == 0) || (last->flag == 10)) {
                 add('_', &Lex, &last);
                 i++;
                 stage = 0;
-              }
-              else {
-                if (isVar(exp[i + 1])) {
-                  CNode *node = new CNode;
-                  node->data = new char[3];
-                  
-                  node->data[0] = exp[i];
-                  node->data[1] = exp[i + 1];
-                  node->data[2] = 0;
-                  node->flag = 3; 
-                  
-                  last->next = node;
-                  node->next = NULL;
-                  last = node;
-                 
-                  i += 2;
-                  stage  = 1;
-                }
-                
-                else
-                  throw std::logic_error("expression is incorrect (-)");
-              }
+              } 
+              else
+                throw std::logic_error("expression is incorrect (-)");
               break;
               
             default: throw std::logic_error("expression is incorrect (unknown simbol)");
@@ -260,26 +241,28 @@ CNode * polish::convert(char *exp) {
   return polForm;
 }
 
-double polish::getVal(char *exp, double *var, int size) {
+double polish::getVal(char *exp, Variable *var) {
   stack<double> s;
   double tmp;
-  int i = 0;
   CNode *polForm = convert(exp);
   
   while (polForm != 0) {
-    if (isNumber(polForm->data[0]) || isNumber(polForm->data[1]))
+    if (isNumber(polForm->data[0]))
       s.push(atof(polForm->data));
       
     else {
-      if (isVar(polForm->data[0]) || isVar(polForm->data[1])) {
-        if (i < size) {
-          if (polForm->data[0] == '-')
-            var[i] *= -1;
-            
-          s.push(var[i]);
-          i++;
+      if (isVar(polForm->data[0])) {
+        int f = 0;
+        Variable *varTmp = var;
+        while (varTmp != 0) {
+          if (varTmp->ch == polForm->data[0]) {
+            s.push(varTmp->val);
+            f = 1;
+            break;
+          }
+          varTmp = varTmp->next;
         }
-        else throw std::exception("not enough variables");
+        if (!f) throw std::exception("variable not found");
       }
         
       else {

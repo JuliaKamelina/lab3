@@ -12,6 +12,12 @@ struct CNode {
   CNode *next;
 };
 
+struct Variable {
+  char ch;
+  double val;
+  Variable *next;
+};
+
 class polish {
   int getPrt(char op);
   bool isOperation(char op);
@@ -23,7 +29,7 @@ class polish {
  public :
   CNode * divideLex(char *exp);
   CNode * convert(char *exp);
-  double getVal(char *exp, double *var, int size);
+  double getVal(char *exp, Variable *var);
 };
 
 #endif  //  _POLISH_H_

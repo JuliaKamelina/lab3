@@ -283,54 +283,94 @@ TEST(polish, can_convert_with_variables) {
 
 TEST(polish, can_get_value) {
   char *s = "3 * 2 -|x|*y";
-  double var[] = {2, 4};
+  Variable *v = new Variable;
+  v->ch = 'x';
+  v->val = 2;
+  v->next = NULL;
+  Variable *var = new Variable;
+  var->ch = 'y';
+  var->val = 4;
+  var->next = v;
+  
   polish l;
   
-  EXPECT_EQ(-2, l.getVal(s, var, 2));
+  EXPECT_EQ(-2, l.getVal(s, var));
 }
 
 TEST(polish, can_get_value_with_negative_var) {
   char *s = "3 * 2 +|-x|*y";
-  double var[] = {2, 4};
+  Variable *v = new Variable;
+  v->ch = 'x';
+  v->val = 2;
+  v->next = NULL;
+  Variable *var = new Variable;
+  var->ch = 'y';
+  var->val = 4;
+  var->next = v;
+  
   polish l;
   
-  EXPECT_EQ(14, l.getVal(s, var, 2));
+  EXPECT_EQ(14, l.getVal(s, var));
 }
 
 TEST(polish, can_get_value_without_vars) {
   char *s = "3+ 6/2-0.3";
   polish l;
   
-  EXPECT_EQ(5.7, l.getVal(s, 0, 0));
+  EXPECT_EQ(5.7, l.getVal(s, 0));
 }
 
 TEST(polish, throws_when_not_enought_vars) {
   char *s = "3 * 2 +|-x|*y-z";
-  double var[] = {2, 4};
+  Variable *v = new Variable;
+  v->ch = 'x';
+  v->val = 2;
+  v->next = NULL;
+  Variable *var = new Variable;
+  var->ch = 'y';
+  var->val = 4;
+  var->next = v;
+  
   polish l;
   
-  ASSERT_ANY_THROW(l.getVal(s, var, 2));
+  ASSERT_ANY_THROW(l.getVal(s, var));
+}
+
+TEST(polish, repeated_var) {
+  char *s = "3 * 2 +|-x|*y-x";
+  Variable *v = new Variable;
+  v->ch = 'x';
+  v->val = 2;
+  v->next = NULL;
+  Variable *var = new Variable;
+  var->ch = 'y';
+  var->val = 4;
+  var->next = v;
+  
+  polish l;
+  
+  EXPECT_EQ(12, l.getVal(s, var));
 }
 
 TEST(polish, throws_when_empty_expression) {
   char *s = 0;
   polish l;
   
-  ASSERT_ANY_THROW(l.getVal(s, 0, 0));
+  ASSERT_ANY_THROW(l.getVal(s, 0));
 }
 
 TEST(polish, throws_when_brakets_abs) {
-  char *s = "|()|";
+  char *s = "|(||)|";
   polish l;
 
-  ASSERT_ANY_THROW(l.getVal(s, 0, 0));
+  ASSERT_ANY_THROW(l.getVal(s, 0));
 }
 
 TEST(polish, can_count_with_abs) {
   char *s = "||-3 + 2|+|-3||";
   polish l;
   
-  EXPECT_EQ(4, l.getVal(s, 0, 0));
+  EXPECT_EQ(4, l.getVal(s, 0));
 }
 
 TEST(polish, throws_when_dot_and_letter) {
@@ -343,23 +383,26 @@ TEST(polish, throws_when_dot_and_letter) {
 TEST(polish, can_calculate_variable) {
   char *s = "a";
   polish l;
-  double var[] = {4}; 
+  Variable *var = new Variable;
+  var->ch = 'a';
+  var->val = 4;
+  var->next = NULL;
   
-  EXPECT_EQ(4, l.getVal(s, var, 1));
+  EXPECT_EQ(4, l.getVal(s, var));
 }
 
 TEST(polish, works_when_negative_degree) {
   char *s = "3+4^(-0.5)";
   polish l;
   
-  EXPECT_EQ(l.getVal(s, 0, 0), 3.5);
+  EXPECT_EQ(l.getVal(s, 0), 3.5);
 }
 
 TEST(polish, abs_and_degrees) {
   char * s = "||-3^2+|-5|^3+|-5^2||-40|";
   polish l;
   
-  EXPECT_EQ(101, l.getVal(s, 0, 0));
+  EXPECT_EQ(101, l.getVal(s, 0));
 }
   
 
